@@ -36,13 +36,13 @@ public class RecipeUI {
 
                 switch (choice) {
                     case "1":
-                        // 設問1: 一覧表示機能
+                        displayRecipes(); // レシピ一覧表示を呼び出し
                         break;
                     case "2":
-                        // 設問2: 新規登録機能
+                        addNewRecipe(); // 新規レシピ追加を呼び出し
                         break;
                     case "3":
-                        // 設問3: 検索機能
+                        searchRecipe(); // レシピ検索を呼び出し
                         break;
                     case "4":
                         System.out.println("Exit the application.");
@@ -62,7 +62,20 @@ public class RecipeUI {
      * RecipeFileHandlerから読み込んだレシピデータを整形してコンソールに表示します。
      */
     private void displayRecipes() {
+        ArrayList<String> recipes = fileHandler.readRecipes();
 
+        if (recipes == null || recipes.isEmpty()) { // レシピデータが空の場合
+            System.out.println("No recipes available.");
+        } else {
+            System.out.println("Recipes:");
+            System.out.println("-----------------------------------");
+            for (String recipe: recipes) {
+                String[] parts = recipe.split(",",2); // レシピ名と材料をカンマで分ける
+                System.out.println("Recipe Name: " + parts[0].trim()); // レシピ名を表示
+                System.out.println("Main Ingredients: " + (parts.length > 1 ? parts[1].trim() : ""));
+                System.out.println("-----------------------------------");
+            }
+        }
     }
 
     /**
@@ -72,6 +85,15 @@ public class RecipeUI {
      * @throws java.io.IOException 入出力が受け付けられない
      */
     private void addNewRecipe() throws IOException {
+        System.out.print("Enter recipe name: ");
+        String recipeName = reader.readLine().trim();
+
+        System.out.print("Enter main ingredients (comma separated): ");
+        String ingredients = reader.readLine().trim();
+
+        fileHandler.addRecipe(recipeName, ingredients);
+
+        System.out.println("Recipe added successfully.");
 
     }
 
