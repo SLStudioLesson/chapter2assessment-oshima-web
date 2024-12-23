@@ -36,7 +36,7 @@ public class RecipeFileHandler {
         } catch (IOException e) {
             System.out.println("Error reading file: 例外のメッセージ" + e.getMessage()); // IOExceptionが発生したときのエラー文
         }
-        return recipes;
+        return recipes; // 空のArrayListを返す
     }
 
     /**

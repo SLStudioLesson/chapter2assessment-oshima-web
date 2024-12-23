@@ -64,7 +64,7 @@ public class RecipeUI {
     private void displayRecipes() {
         ArrayList<String> recipes = fileHandler.readRecipes();
 
-        if (recipes == null || recipes.isEmpty()) { // レシピデータが空の場合
+        if (recipes.isEmpty()) { // レシピデータが空の場合
             System.out.println("No recipes available.");
         } else {
             System.out.println("Recipes:");
@@ -103,9 +103,80 @@ public class RecipeUI {
      *
      * @throws java.io.IOException 入出力が受け付けられない
      */
-    private void searchRecipe() throws IOException {
+    private void searchRecipe() throws IOException { // ユーザー入力
+        System.out.print("Enter search query (e.g., 'name=Tomato&ingredient=Garlic'): ");
+        String query = reader.readLine().trim();
 
+        String nameCondition = null;
+        String ingredientCondition = null;
+
+        String fieldName = ""; // レシピ名の条件の初期化
+        String fieldIngredients = ""; // 材料の条件の初期化
+        for (int i = 0; i < query.length(); i++) {
+            char j = query.charAt(i);
+            if (j == '=') {
+                fieldName = fieldIngredients;
+                fieldIngredients = "";
+            } else if (j == '&') {
+                if (fieldName.equals("name")) {
+                    nameCondition = fieldIngredients;
+                } else if (fieldName.equals("ingredient")) {
+                    ingredientCondition = fieldIngredients;
+                }
+            fieldName = "";
+            fieldIngredients = "";
+        } else {
+            fieldIngredients += j;
+        }
     }
 
+    if (fieldName.equals("name")) {
+        nameCondition = fieldIngredients;
+    } else if (fieldName.equals("ingredient")) {
+        ingredientCondition = fieldIngredients;
+    }
+
+    ArrayList<String> recipes = fileHandler.readRecipes();
+    ArrayList<String> matchingRecipes = new ArrayList<>();
+
+    for (String recipe : recipes) {
+        String recipeName = ""; // レシピ名
+        String ingredients = ""; // 材料
+        boolean isCommaFound = false;
+        for (int j = 0; j < recipe.length(); j++) {
+            char currentChar = recipe.charAt(j);
+            if (currentChar == ',' && !isCommaFound) {
+                for (int k = 0; k < j; k++) {
+                    recipeName += recipe.charAt(k);
+                }
+                for (int k = j + 1; k < recipe.length(); k++) {
+                    ingredients += recipe.charAt(k);
+                }
+                isCommaFound = true;
+                break; // ループを抜ける
+            }
+        }
+
+        recipeName = recipeName.trim();
+        ingredients = ingredients.trim();
+
+        boolean nameMatches = (nameCondition == null || recipeName.contains(nameCondition));
+        boolean ingredientMatches = (ingredientCondition == null || ingredients.contains(ingredientCondition));
+
+        if (nameMatches && ingredientMatches) {
+            matchingRecipes.add(recipe);
+        }
+    }
+    
+    System.out.println("\n");
+    System.out.println("Search Results: ");
+    if (matchingRecipes.isEmpty()) {
+        System.out.println("No recipes found matching the criteria.");
+    } else {
+        for (String recipe : matchingRecipes) {
+            System.out.println(recipe);
+        }
+    }
+    }
 }
 
